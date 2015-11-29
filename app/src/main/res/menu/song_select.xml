@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="schemas.android.com/tools"
+    tools:context=".Selector"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:title="@string/shuffle"
+        android:id="@+id/shuffle"
+        android:icon="@drawable/shuffle"
+        app:showAsAction="always"/>
+    <item
+        android:title="@string/cross"
+        android:id="@+id/cross"
+        android:icon="@drawable/cross"
+        android:visible="false"
+        app:showAsAction="always"/>
+    <item
+        android:title="@string/plus"
+        android:id="@+id/plus"
+        android:icon="@drawable/plus"
+        android:visible="false"
+        app:showAsAction="always"/>
+    <item
+        android:title="@string/tick"
+        android:id="@+id/tick"
+        android:icon="@drawable/tick"
+        android:visible="false"
+        app:showAsAction="always"/>
+    <item
+        android:title="@string/checkbox"
+        android:id="@+id/select_all"
+        android:icon="@drawable/checkbox_tick"
+        app:showAsAction="always"/>
+</menu>
