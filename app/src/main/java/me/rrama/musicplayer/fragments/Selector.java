@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -39,7 +40,12 @@ public class Selector extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         this.menu = menu;
-        ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle(R.string.music);
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (actionBar == null) {
+            Toast.makeText(getActivity(), "ActionBar null. Currently.", Toast.LENGTH_LONG).show();
+        } else {
+            actionBar.setTitle(R.string.music);
+        }
         inflater.inflate(R.menu.song_select, menu);
         if (crossTickVisible) {
             crossTickVisible();
@@ -76,6 +82,10 @@ public class Selector extends Fragment {
 
         File folder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
         String[] songs = folder.list();
+        if (songs == null) {
+            Toast.makeText(getActivity(), "Failed perms. Selector.", Toast.LENGTH_LONG).show();
+            return view;
+        }
         Arrays.sort(songs);
         for (String songName : songs) {
             if (!songName.endsWith(".mp3")) continue;

@@ -1,5 +1,6 @@
 package me.rrama.musicplayer;
 
+import android.Manifest;
 import android.app.Fragment;
 import android.content.ComponentName;
 import android.content.Context;
@@ -27,6 +28,7 @@ import me.rrama.musicplayer.fragments.Currently;
 import me.rrama.musicplayer.fragments.Playlists;
 import me.rrama.musicplayer.fragments.Selector;
 import me.rrama.musicplayer.services.PlaySongs;
+import me.rrama.musicplayer.util.CheckPerm;
 import me.rrama.musicplayer.util.ServiceBinder;
 
 /**
@@ -103,6 +105,8 @@ public class Slider extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
+        CheckPerm.getPerm(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        CheckPerm.getPerm(this, Manifest.permission.WAKE_LOCK);
         mediaRouter.addCallback(mediaRouteSelector, routeBack, MediaRouter.CALLBACK_FLAG_REQUEST_DISCOVERY);
     }
 

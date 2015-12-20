@@ -1,5 +1,6 @@
 package me.rrama.musicplayer.fragments;
 
+import android.Manifest;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.os.Environment;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import me.rrama.musicplayer.services.PlaySongs;
 import me.rrama.musicplayer.R;
 import me.rrama.musicplayer.Slider;
+import me.rrama.musicplayer.util.CheckPerm;
 import me.rrama.musicplayer.util.DialogGet;
 import me.rrama.musicplayer.widgets.QueuedTextView;
 
@@ -38,7 +40,11 @@ public class Currently extends Fragment implements Runnable {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        actionBar.setTitle(R.string.queued);
+        if (actionBar == null) {
+            Toast.makeText(getActivity(), "ActionBar null. Currently.", Toast.LENGTH_LONG).show();
+        } else {
+            actionBar.setTitle(R.string.queued);
+        }
         ArrayList<View> views = new ArrayList<>();
         getActivity().getWindow().getDecorView()
                 .findViewsWithText(views, getResources().getString(R.string.queued), View.FIND_VIEWS_WITH_TEXT);
@@ -119,6 +125,7 @@ public class Currently extends Fragment implements Runnable {
     }
 
     public void saveDialog() {
+        CheckPerm.getPerm(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
         DialogGet.getText(getActivity(), "Playlist name:", new DialogGet.AfterGet() {
             @Override
             public void afterGet(String input) {

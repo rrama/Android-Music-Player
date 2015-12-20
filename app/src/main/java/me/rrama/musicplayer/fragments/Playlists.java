@@ -5,6 +5,7 @@ import android.app.Fragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -39,7 +40,12 @@ public class Playlists extends Fragment implements View.OnClickListener, View.On
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle(R.string.playlists);
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (actionBar == null) {
+            Toast.makeText(getActivity(), "ActionBar null. Currently.", Toast.LENGTH_LONG).show();
+        } else {
+            actionBar.setTitle(R.string.playlists);
+        }
         inflater.inflate(R.menu.playlists, menu);
     }
 
@@ -58,6 +64,10 @@ public class Playlists extends Fragment implements View.OnClickListener, View.On
         ViewGroup vg = getLayoutViewGroup(view);
         File playlists = new File(Environment.getExternalStorageDirectory(), "/Documents/Playlists");
         String[] lists = playlists.list();
+        if (lists == null) {
+            Toast.makeText(getActivity(), "Failed perms. Playlists.", Toast.LENGTH_LONG).show();
+            return;
+        }
         Arrays.sort(lists);
         for (String playlist : lists) {
             if (!playlist.endsWith(".txt")) continue;

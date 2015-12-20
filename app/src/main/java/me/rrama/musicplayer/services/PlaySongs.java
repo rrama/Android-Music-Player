@@ -165,6 +165,11 @@ public class PlaySongs extends Service implements Runnable {
             path += "/";
         }
 
+        if (folder.list() == null) {
+            Toast.makeText(this, "Failed perms. PlaySongs.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         ArrayList<String> songs = new ArrayList<>();
         for (String song : folder.list()) {
             if (!song.endsWith(".mp3")) continue;
