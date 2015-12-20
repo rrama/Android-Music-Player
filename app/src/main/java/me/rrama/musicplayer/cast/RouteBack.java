@@ -11,10 +11,10 @@ import me.rrama.musicplayer.Slider;
 
 public class RouteBack extends MediaRouter.Callback {
 
-    private final String TAG = "RBm9";
+    private static final String TAG = "RBm9";
     public CastDevice device;
     public GoogleApiClient apiClient;
-    private CastBack castBack = new CastBack(this);
+    private final CastBack castBack = new CastBack(this);
     public final Slider slider;
 
     public RouteBack(Slider slider) {
@@ -24,6 +24,7 @@ public class RouteBack extends MediaRouter.Callback {
     @Override
     public void onRouteSelected(MediaRouter router, MediaRouter.RouteInfo info) {
         device = CastDevice.getFromBundle(info.getExtras());
+        if (device == null) return;
 
         Cast.CastOptions.Builder apiOptionsBuilder = Cast.CastOptions
                 .builder(device, castBack)

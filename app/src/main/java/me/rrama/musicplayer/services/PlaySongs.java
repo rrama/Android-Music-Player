@@ -11,10 +11,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import me.rrama.musicplayer.players.LocalSongPlayer;
 import me.rrama.musicplayer.controls.ControlReceiver;
 import me.rrama.musicplayer.controls.notification.SongNotification;
 import me.rrama.musicplayer.controls.session.SongSession;
+import me.rrama.musicplayer.players.LocalSongPlayer;
 import me.rrama.musicplayer.players.Player;
 import me.rrama.musicplayer.util.ServiceBinder;
 
@@ -50,6 +50,7 @@ public class PlaySongs extends Service implements Runnable {
      */
     public void setPlayer(Player player) {
         this.player.stop();
+        this.player.release();
         this.player = player;
     }
 

@@ -49,7 +49,7 @@ public class Slider extends AppCompatActivity {
     private final Playlists playlists = new Playlists();
     private MediaRouter mediaRouter;
     private MediaRouteSelector mediaRouteSelector;
-    private RouteBack routeBack = new RouteBack(this);
+    private final RouteBack routeBack = new RouteBack(this);
 
     public PlaySongs playSongs() {
         return playSongs;

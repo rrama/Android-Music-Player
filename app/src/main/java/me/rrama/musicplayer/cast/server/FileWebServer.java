@@ -52,14 +52,14 @@ public class FileWebServer extends NanoHTTPD {
 
     private final String cors;
 
-    protected List<File> rootDirs;
+    protected final List<File> rootDirs;
 
     public FileWebServer(String host, int port, File wwwroot, boolean quiet, String cors) {
         this(host, port, Collections.singletonList(wwwroot), quiet, cors);
     }
 
-    public FileWebServer(String host, int port, File wwwroot, boolean quiet) {
-        this(host, port, Collections.singletonList(wwwroot), quiet, null);
+    public FileWebServer(File wwwroot) {
+        this("192.168.0.158", 8080, Collections.singletonList(wwwroot), false, null);
     }
 
     public FileWebServer(String host, int port, List<File> wwwroots, boolean quiet) {
@@ -71,8 +71,6 @@ public class FileWebServer extends NanoHTTPD {
         this.quiet = quiet;
         this.cors = cors;
         this.rootDirs = new ArrayList<>(wwwroots);
-
-        init();
     }
 
     private boolean canServeUri(String uri, File homeDir) {
@@ -94,12 +92,6 @@ public class FileWebServer extends NanoHTTPD {
         return newFixedLengthResponse(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "Error 404, file not found.");
     }
 
-    /**
-     * Used to initialize and customize the server.
-     */
-    public void init() {
-    }
-
     public static Response newFixedLengthResponse(IStatus status, String mimeType, String message) {
         Response response = NanoHTTPD.newFixedLengthResponse(status, mimeType, message);
         response.addHeader("Accept-Ranges", "bytes");
@@ -116,7 +108,7 @@ public class FileWebServer extends NanoHTTPD {
         }
 
         if (cors != null) {
-            r = addCORSHeaders(headers, r, cors);
+            r = addCORSHeaders(r, cors);
         }
         return r;
     }
@@ -290,9 +282,9 @@ public class FileWebServer extends NanoHTTPD {
         return res;
     }
 
-    protected Response addCORSHeaders(Map<String, String> queryHeaders, Response resp, String cors) {
+    protected Response addCORSHeaders(Response resp, String cors) {
         resp.addHeader("Access-Control-Allow-Origin", cors);
-        resp.addHeader("Access-Control-Allow-Headers", calculateAllowHeaders(queryHeaders));
+        resp.addHeader("Access-Control-Allow-Headers", calculateAllowHeaders());
         resp.addHeader("Access-Control-Allow-Credentials", "true");
         resp.addHeader("Access-Control-Allow-Methods", ALLOWED_METHODS);
         resp.addHeader("Access-Control-Max-Age", "" + MAX_AGE);
@@ -300,7 +292,7 @@ public class FileWebServer extends NanoHTTPD {
         return resp;
     }
 
-    private String calculateAllowHeaders(Map<String, String> queryHeaders) {
+    private String calculateAllowHeaders() {
         // here we should use the given asked headers
         // but NanoHttpd uses a Map whereas it is possible for requester to send
         // several time the same header

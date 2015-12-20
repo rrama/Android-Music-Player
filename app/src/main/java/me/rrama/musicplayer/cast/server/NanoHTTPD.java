@@ -250,7 +250,7 @@ public abstract class NanoHTTPD {
 
         private String queryParameterString;
 
-        private String remoteIp;
+        private final String remoteIp;
 
         private String protocolVersion;
 
@@ -846,19 +846,19 @@ public abstract class NanoHTTPD {
         /**
          * HTTP status code after processing, e.g. "200 OK", Status.OK
          */
-        private IStatus status;
+        private final IStatus status;
 
         /**
          * MIME type of content, e.g. "text/html"
          */
-        private String mimeType;
+        private final String mimeType;
 
         /**
          * Data of the response, may be null.
          */
         private InputStream data;
 
-        private long contentLength;
+        private final long contentLength;
 
         /**
          * Headers for the HTTP response. Use addHeader() to add lines. the
@@ -982,7 +982,7 @@ public abstract class NanoHTTPD {
                 }
                 if (encodeAsGzip) {
                     printHeader(pw, "Content-Encoding", "gzip");
-                    setChunkedTransfer(true);
+                    setChunkedTransfer();
                 }
                 long pending = this.data != null ? this.contentLength : 0;
                 if (this.requestMethod != Method.HEAD && this.chunkedTransfer) {
@@ -1065,8 +1065,8 @@ public abstract class NanoHTTPD {
             }
         }
 
-        public void setChunkedTransfer(boolean chunkedTransfer) {
-            this.chunkedTransfer = chunkedTransfer;
+        public void setChunkedTransfer() {
+            this.chunkedTransfer = true;
         }
 
         public void setData(InputStream data) {
@@ -1245,7 +1245,7 @@ public abstract class NanoHTTPD {
 
     private volatile ServerSocket myServerSocket;
 
-    private ServerSocketFactory serverSocketFactory = new DefaultServerSocketFactory();
+    private final ServerSocketFactory serverSocketFactory = new DefaultServerSocketFactory();
 
     private Thread myThread;
 
@@ -1323,8 +1323,8 @@ public abstract class NanoHTTPD {
         return r.getMimeType() != null && r.getMimeType().toLowerCase().contains("text/");
     }
 
-    public final boolean isAlive() {
-        return wasStarted() && !this.myServerSocket.isClosed() && this.myThread.isAlive();
+    public final boolean isDead() {
+        return !wasStarted() || this.myServerSocket.isClosed() || !this.myThread.isAlive();
     }
 
     public ServerSocketFactory getServerSocketFactory() {
@@ -1404,26 +1404,18 @@ public abstract class NanoHTTPD {
     }
 
     /**
-     * Starts the server (in setDaemon(true) mode).
-     */
-    public void start(final int timeout) throws IOException {
-        start(timeout, true);
-    }
-
-    /**
      * Start the server.
      *
      * @param timeout timeout to use for socket connections.
-     * @param daemon  start the thread daemon or not.
      * @throws IOException if the socket is in use.
      */
-    public void start(final int timeout, boolean daemon) throws IOException {
+    public void start(final int timeout) throws IOException {
         this.myServerSocket = this.getServerSocketFactory().create();
         this.myServerSocket.setReuseAddress(true);
 
         ServerRunnable serverRunnable = createServerRunnable(timeout);
         this.myThread = new Thread(serverRunnable);
-        this.myThread.setDaemon(daemon);
+        this.myThread.setDaemon(true);
         this.myThread.setName("NanoHttpd Main Listener");
         this.myThread.start();
         while (!serverRunnable.hasBinded && serverRunnable.bindException == null) {

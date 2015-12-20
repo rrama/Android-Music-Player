@@ -21,7 +21,7 @@ import me.rrama.musicplayer.players.LocalSongPlayer;
 public class CastBack extends Cast.Listener implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
     
-    private String TAG = "MPCC";
+    private static final String TAG = "MPCC";
     private boolean waitingForReconnect;
     private final RouteBack routeBack;
     public boolean applicationStarted = false;
@@ -55,11 +55,11 @@ public class CastBack extends Cast.Listener implements GoogleApiClient.Connectio
                 Log.e(TAG, "Failed to launch application", e);
             }
 
-            if (webServer == null || !webServer.isAlive()) {
+            if (webServer == null || webServer.isDead()) {
                 synchronized (LOCK_WEB_SERVER) {
-                    if (webServer == null || !webServer.isAlive()) {
-                        webServer = new FileWebServer("192.168.0.158", 8080,
-                                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC), false);
+                    if (webServer == null || webServer.isDead()) {
+                        webServer = new FileWebServer(
+                                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC));
                         try {
                             webServer.start();
                         } catch (IOException ex) {

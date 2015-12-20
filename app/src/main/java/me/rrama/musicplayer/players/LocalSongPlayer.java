@@ -113,6 +113,11 @@ public class LocalSongPlayer extends Player implements MediaPlayer.OnPreparedLis
         mediaPlayer.reset();
     }
 
+    @Override
+    public void release() {
+        mediaPlayer.release();
+    }
+
     private boolean wasPlaying = false;
 
     @Override
