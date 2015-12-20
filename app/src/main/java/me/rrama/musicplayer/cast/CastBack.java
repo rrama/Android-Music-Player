@@ -1,6 +1,8 @@
 package me.rrama.musicplayer.cast;
 
 import android.os.Bundle;
+import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.cast.Cast;
@@ -10,6 +12,9 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 
+import java.io.IOException;
+
+import me.rrama.musicplayer.cast.server.FileWebServer;
 import me.rrama.musicplayer.players.CastSongPlayer;
 import me.rrama.musicplayer.players.LocalSongPlayer;
 
@@ -22,8 +27,18 @@ public class CastBack extends Cast.Listener implements GoogleApiClient.Connectio
     public boolean applicationStarted = false;
     public String sessionId = null;
 
+    private static FileWebServer webServer = null;
+    private static final Object LOCK_WEB_SERVER = new Object();
+
     public CastBack(RouteBack routeBack) {
         this.routeBack = routeBack;
+    }
+
+    public static void closeWebServer() {
+        if (webServer != null) {
+            webServer.stop();
+        }
+        webServer = null;
     }
 
     @Override
@@ -39,6 +54,20 @@ public class CastBack extends Cast.Listener implements GoogleApiClient.Connectio
             } catch (Exception e) {
                 Log.e(TAG, "Failed to launch application", e);
             }
+
+            if (webServer == null || !webServer.isAlive()) {
+                synchronized (LOCK_WEB_SERVER) {
+                    if (webServer == null || !webServer.isAlive()) {
+                        webServer = new FileWebServer("192.168.0.158", 8080,
+                                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC), false);
+                        try {
+                            webServer.start();
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -48,7 +77,7 @@ public class CastBack extends Cast.Listener implements GoogleApiClient.Connectio
     }
 
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Log.e(TAG, "Failed.");
         teardown();
     }
@@ -102,12 +131,13 @@ public class CastBack extends Cast.Listener implements GoogleApiClient.Connectio
 
         // Set our local player back on.
         routeBack.slider.playSongs().setPlayer(new LocalSongPlayer(routeBack.slider.playSongs()));
+        closeWebServer();
     }
 
     public class RCB implements ResultCallback<Cast.ApplicationConnectionResult> {
 
         @Override
-        public void onResult(Cast.ApplicationConnectionResult result) {
+        public void onResult(@NonNull Cast.ApplicationConnectionResult result) {
             Status status = result.getStatus();
             if (status.isSuccess()) {
 //                ApplicationMetadata applicationMetadata =

@@ -2,6 +2,7 @@ package me.rrama.musicplayer;
 
 import android.Manifest;
 import android.app.Fragment;
+import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -22,6 +23,7 @@ import android.view.MenuItem;
 
 import com.google.android.gms.cast.CastMediaControlIntent;
 
+import me.rrama.musicplayer.cast.CastBack;
 import me.rrama.musicplayer.cast.RouteBack;
 import me.rrama.musicplayer.controls.embedded.SongController;
 import me.rrama.musicplayer.fragments.Currently;
@@ -116,6 +118,7 @@ public class Slider extends AppCompatActivity {
             songController.stop();
         }
         mediaRouter.removeCallback(routeBack);
+        CastBack.closeWebServer();
         super.onStop();
     }
 
@@ -171,7 +174,10 @@ public class Slider extends AppCompatActivity {
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            playSongs = ((ServiceBinder<PlaySongs>) service).getService();
+            if (!(service instanceof ServiceBinder)) return;
+            Service serv = ((ServiceBinder) service).getService();
+            if (!(serv instanceof PlaySongs)) return;
+            playSongs = (PlaySongs) serv;
             if (songController != null) {
                 songController.stop();
             }

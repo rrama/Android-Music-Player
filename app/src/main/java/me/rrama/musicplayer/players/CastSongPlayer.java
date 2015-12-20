@@ -1,5 +1,7 @@
 package me.rrama.musicplayer.players;
 
+import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.cast.Cast;
@@ -64,6 +66,12 @@ public class CastSongPlayer extends Player {
 
     @Override
     public void setDataSource(String source) {
+        // Change local files its file server address.
+        String mPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath();
+        if (source.startsWith(mPath)) {
+            source = "192.168.0.158:8080/" + source.substring(mPath.length());
+        }
+
         MediaMetadata mediaMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE);
         mediaMetadata.putString(MediaMetadata.KEY_TITLE, source);
         MediaInfo mediaInfo = new MediaInfo.Builder(source)
@@ -75,7 +83,7 @@ public class CastSongPlayer extends Player {
             mediaPlayer.load(apiClient, mediaInfo, true)
                     .setResultCallback(new ResultCallback<RemoteMediaPlayer.MediaChannelResult>() {
                         @Override
-                        public void onResult(RemoteMediaPlayer.MediaChannelResult result) {
+                        public void onResult(@NonNull RemoteMediaPlayer.MediaChannelResult result) {
                             if (result.getStatus().isSuccess()) {
                                 prepared = true;
                                 Log.d(TAG, "Media loaded successfully");
