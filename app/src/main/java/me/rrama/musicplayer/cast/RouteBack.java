@@ -26,9 +26,9 @@ public class RouteBack extends MediaRouter.Callback {
         device = CastDevice.getFromBundle(info.getExtras());
         if (device == null) return;
 
-        Cast.CastOptions.Builder apiOptionsBuilder = Cast.CastOptions
-                .builder(device, castBack)
-                .setVerboseLoggingEnabled(true);
+        Cast.CastOptions.Builder apiOptionsBuilder =
+                new Cast.CastOptions.Builder(device, castBack)
+                        .setVerboseLoggingEnabled(true);
 
         apiClient = new GoogleApiClient.Builder(slider)
                 .addApi(Cast.API, apiOptionsBuilder.build())

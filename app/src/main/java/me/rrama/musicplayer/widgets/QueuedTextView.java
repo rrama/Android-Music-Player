@@ -129,7 +129,7 @@ public class QueuedTextView extends RelativeLayout implements View.OnLongClickLi
     }
 
     public void setPlaying() {
-        tv.setTextColor(getResources().getColor(R.color.yellow));
+        tv.setTextColor(getResources().getColor(R.color.yellow, null));
     }
 
     public int getIndex() {

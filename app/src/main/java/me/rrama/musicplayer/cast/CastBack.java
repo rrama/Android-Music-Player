@@ -49,7 +49,7 @@ public class CastBack extends Cast.Listener implements GoogleApiClient.Connectio
         } else {
             try {
                 Cast.CastApi
-                        .launchApplication(routeBack.apiClient, CastMediaControlIntent.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID, false)
+                        .launchApplication(routeBack.apiClient, CastMediaControlIntent.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID)
                         .setResultCallback(new RCB());
             } catch (Exception e) {
                 Log.e(TAG, "Failed to launch application", e);

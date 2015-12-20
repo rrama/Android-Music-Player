@@ -932,10 +932,6 @@ public abstract class NanoHTTPD {
             return "close".equals(getHeader("connection"));
         }
 
-        public InputStream getData() {
-            return this.data;
-        }
-
         public String getHeader(String name) {
             return this.lowerCaseHeader.get(name.toLowerCase());
         }
@@ -1067,10 +1063,6 @@ public abstract class NanoHTTPD {
 
         public void setChunkedTransfer() {
             this.chunkedTransfer = true;
-        }
-
-        public void setData(InputStream data) {
-            this.data = data;
         }
 
         public void setRequestMethod(Method requestMethod) {
