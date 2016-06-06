@@ -14,20 +14,20 @@ import com.google.android.gms.common.api.Status;
 
 import java.io.IOException;
 
-import me.rrama.musicplayer.cast.server.FileWebServer;
+import me.rrama.musicplayer.cast.server.SimpleWebServer;
 import me.rrama.musicplayer.players.CastSongPlayer;
 import me.rrama.musicplayer.players.LocalSongPlayer;
 
 public class CastBack extends Cast.Listener implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
     
-    private static final String TAG = "MPCC";
+    private static final String TAG = "CastBack";
     private boolean waitingForReconnect;
     private final RouteBack routeBack;
     public boolean applicationStarted = false;
     public String sessionId = null;
 
-    private static FileWebServer webServer = null;
+    private static SimpleWebServer webServer = null;
     private static final Object LOCK_WEB_SERVER = new Object();
 
     public CastBack(RouteBack routeBack) {
@@ -51,20 +51,25 @@ public class CastBack extends Cast.Listener implements GoogleApiClient.Connectio
                 Cast.CastApi
                         .launchApplication(routeBack.apiClient, CastMediaControlIntent.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID)
                         .setResultCallback(new RCB());
-            } catch (Exception e) {
-                Log.e(TAG, "Failed to launch application", e);
+            } catch (Exception ex) {
+                Log.e(TAG, "Failed to launch application", ex);
             }
-
-            if (webServer == null || webServer.isDead()) {
-                synchronized (LOCK_WEB_SERVER) {
-                    if (webServer == null || webServer.isDead()) {
-                        webServer = new FileWebServer(
-                                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC));
-                        try {
-                            webServer.start();
-                        } catch (IOException ex) {
-                            ex.printStackTrace();
-                        }
+    
+            initialiseWebServer();
+        }
+    }
+    
+    public static void initialiseWebServer() {
+        if (webServer == null || webServer.isDead()) {
+            synchronized (LOCK_WEB_SERVER) {
+                if (webServer == null || webServer.isDead()) {
+                    webServer = new SimpleWebServer(
+                            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC));
+                    try {
+                        webServer.start();
+                        Log.i(TAG, "WebServer started.");
+                    } catch (IOException ex) {
+                        Log.e(TAG, "WebServer failed to start.", ex);
                     }
                 }
             }

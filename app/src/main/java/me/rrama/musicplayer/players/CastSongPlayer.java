@@ -12,12 +12,14 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 import me.rrama.musicplayer.services.PlaySongs;
 
 public class CastSongPlayer extends Player {
 
-    private final String TAG = "RSP";
+    private final String TAG = "CSP";
     private final GoogleApiClient apiClient;
     private final RemoteMediaPlayer mediaPlayer = new RemoteMediaPlayer();
     private boolean playing = false;
@@ -69,7 +71,11 @@ public class CastSongPlayer extends Player {
         // Change local files its file server address.
         String mPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath();
         if (source.startsWith(mPath)) {
-            source = "192.168.0.158:8080/" + source.substring(mPath.length());
+            try {
+                source = "http://192.168.0.158:8080/" + URLEncoder.encode(source.substring(mPath.length() + 1), "UTF8");
+            } catch (UnsupportedEncodingException ex) {
+                Log.e(TAG, "Encoding URI Exception.", ex);
+            }
         }
 
         MediaMetadata mediaMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE);
@@ -86,14 +92,16 @@ public class CastSongPlayer extends Player {
                         public void onResult(@NonNull RemoteMediaPlayer.MediaChannelResult result) {
                             if (result.getStatus().isSuccess()) {
                                 prepared = true;
+                                playing = true;
+                                playSongs.updateListeners();
                                 Log.d(TAG, "Media loaded successfully");
                             }
                         }
                     });
-        } catch (IllegalStateException e) {
-            Log.e(TAG, "Problem occurred with media during loading", e);
-        } catch (Exception e) {
-            Log.e(TAG, "Problem opening media during loading", e);
+        } catch (IllegalStateException ex) {
+            Log.e(TAG, "Problem occurred with media during loading", ex);
+        } catch (Exception ex) {
+            Log.e(TAG, "Problem opening media during loading", ex);
         }
     }
 
